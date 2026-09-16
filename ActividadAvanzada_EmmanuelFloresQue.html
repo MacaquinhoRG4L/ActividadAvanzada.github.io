@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Criptografía, Malware y Hardening de Redes</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Arial,Helvetica,sans-serif;background:#eef2f7;color:#202938;line-height:1.5}
+header{background:linear-gradient(135deg,#111827,#263b5c);color:#fff;text-align:center;padding:48px 20px}
+.badge{display:inline-block;background:#f4c84a;color:#172033;font-weight:800;padding:7px 16px;border-radius:30px;margin-bottom:14px}
+header h1{font-size:clamp(28px,5vw,48px);margin-bottom:10px}
+header p{font-size:18px;opacity:.9}
+.container{max-width:1250px;margin:auto;padding:35px 20px 55px}
+.section{background:#fff;border-radius:18px;padding:28px;margin-bottom:28px;box-shadow:0 8px 25px rgba(17,24,39,.08)}
+.section h2{color:#17365d;font-size:28px;margin-bottom:8px}
+.intro{color:#5e6876;margin-bottom:25px}
+.cards{display:grid;grid-template-columns:repeat(2,1fr);gap:20px}
+.card{border:1px solid #dbe3ec;border-radius:15px;padding:22px;background:#f8fafc}
+.card h3{color:#17365d;font-size:21px;margin-bottom:9px}
+.card p{color:#566273}
+.tag{display:inline-block;background:#e2edf7;color:#17436b;border-radius:20px;padding:4px 10px;font-size:12px;font-weight:bold;margin-bottom:10px}
+.compare{width:100%;border-collapse:collapse;margin-top:20px}
+.compare th,.compare td{padding:14px;border:1px solid #d8e0e8;text-align:left;vertical-align:top}
+.compare th{background:#17365d;color:#fff}
+.compare tr:nth-child(even){background:#f7f9fb}
+.flow{display:flex;align-items:stretch;justify-content:center;gap:10px;flex-wrap:wrap;margin-top:20px}
+.flow-item{background:#e9f1f8;border:2px solid #8aa7c1;border-radius:12px;padding:15px 18px;text-align:center;min-width:145px;font-weight:700;color:#17365d}
+.arrow{display:flex;align-items:center;font-size:26px;color:#526d86;font-weight:bold}
+.accent{border-left:5px solid #b98700;background:#fff9df;padding:16px;border-radius:8px;margin-top:20px}
+.map-button{width:100%;border:0;background:linear-gradient(135deg,#17365d,#2c5d88);color:#fff;padding:19px 22px;border-radius:13px;font-size:18px;font-weight:800;cursor:pointer;transition:.2s}
+.map-button:hover{transform:translateY(-2px);filter:brightness(1.08)}
+.map-button span{float:right;font-size:24px}
+.modal{display:none;position:fixed;z-index:1000;inset:0;background:rgba(8,18,31,.75);padding:20px;overflow:auto}
+.modal.active{display:flex;justify-content:center;align-items:center}
+.modal-box{width:min(1150px,100%);max-height:94vh;overflow:auto;background:#fff;border-radius:18px;box-shadow:0 25px 70px rgba(0,0,0,.35)}
+.modal-head{background:#17365d;color:#fff;padding:21px 25px;display:flex;justify-content:space-between;align-items:center}
+.modal-head h2{font-size:25px}
+.close{background:none;border:0;color:#fff;font-size:34px;cursor:pointer}
+.map-content{padding:28px}
+.map-root{background:#17365d;color:#fff;border-radius:14px;padding:20px;text-align:center;font-size:22px;font-weight:800;max-width:450px;margin:0 auto 32px;position:relative}
+.map-root:after{content:"";position:absolute;left:50%;top:100%;height:30px;border-left:3px solid #7d93a8}
+.map-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px;min-width:900px;position:relative}
+.map-grid:before{content:"";position:absolute;top:-15px;left:16.6%;right:16.6%;border-top:3px solid #7d93a8}
+.map-column{position:relative;padding-top:15px}
+.map-column:before{content:"";position:absolute;top:-15px;left:50%;height:15px;border-left:3px solid #7d93a8}
+.map-title{background:#e1edf6;border:2px solid #88a9c2;border-radius:12px;padding:15px;text-align:center;color:#17365d;font-weight:800;margin-bottom:15px}
+.map-title small{display:block;color:#617286;font-weight:500;margin-top:3px}
+.brace{display:flex;gap:9px}
+.brace-symbol{width:24px;min-width:24px;border-right:4px solid #2c5d88;border-top:4px solid #2c5d88;border-bottom:4px solid #2c5d88;border-radius:0 10px 10px 0}
+.map-items{flex:1;display:grid;gap:9px}
+.map-item{background:#f7f9fb;border-left:4px solid #2c5d88;border-radius:8px;padding:11px 12px}
+.map-item strong{display:block;color:#1d4262}
+.map-item span{font-size:13px;color:#5e6a78}
+.note{background:#eef6ff;border-left:5px solid #2c5d88;padding:15px;border-radius:8px;margin-top:25px}
+footer{background:#111f31;color:#dce5ee;text-align:center;padding:25px}
+@media(max-width:850px){.cards{grid-template-columns:1fr}.map-grid{min-width:850px}}
+@media(max-width:600px){header{padding:35px 15px}.container{padding:20px 12px 40px}.section{padding:20px}.compare{font-size:13px}.compare th,.compare td{padding:9px}.modal{padding:10px}.map-content{padding:20px}}
+</style>
+</head>
+<body>
+
+<header>
+<div class="badge">UNIDAD · CRIPTOGRAFÍA Y SEGURIDAD</div>
+<h1>Criptografía, Malware y Hardening de Redes</h1>
+<p>Infografía técnica interactiva · Métodos de cifrado · Análisis de malware · DMZ · SSL/TLS</p>
+</header>
+
+<main class="container">
+
+<section class="section">
+<h2>1. Métodos de cifrado</h2>
+<p class="intro">La criptografía protege la confidencialidad e integridad de la información mediante algoritmos y claves.</p>
+
+<div class="cards">
+<div class="card">
+<span class="tag">CIFRADO SIMÉTRICO</span>
+<h3>Una misma clave</h3>
+<p>Utiliza una clave compartida para cifrar y descifrar la información. Es eficiente para grandes cantidades de datos, pero la clave debe protegerse y compartirse de forma segura.</p>
+<br>
+<strong>Ejemplos:</strong> AES, ChaCha20.
+</div>
+
+<div class="card">
+<span class="tag">CIFRADO ASIMÉTRICO</span>
+<h3>Par de claves</h3>
+<p>Utiliza una clave pública y una clave privada relacionadas matemáticamente. Permite intercambio seguro de información y mecanismos de autenticación y firma digital.</p>
+<br>
+<strong>Ejemplos:</strong> RSA, ECC.
+</div>
+</div>
+
+<table class="compare">
+<tr><th>Característica</th><th>Simétrico</th><th>Asimétrico</th></tr>
+<tr><td>Claves</td><td>Una clave compartida</td><td>Clave pública + clave privada</td></tr>
+<tr><td>Velocidad</td><td>Generalmente más rápido</td><td>Generalmente más costoso computacionalmente</td></tr>
+<tr><td>Uso habitual</td><td>Cifrado de datos</td><td>Intercambio de claves, autenticación y firmas</td></tr>
+<tr><td>Reto principal</td><td>Distribución segura de la clave</td><td>Protección de la clave privada</td></tr>
+</table>
+
+<div class="accent"><strong>Aplicación práctica:</strong> los sistemas modernos pueden combinar criptografía asimétrica para establecer confianza o intercambiar secretos y cifrado simétrico para proteger eficientemente la comunicación.</div>
+</section>
+
+<section class="section">
+<h2>2. Análisis de malware</h2>
+<p class="intro">El análisis de malware permite conocer el comportamiento de un archivo sospechoso y determinar indicadores útiles para su detección y respuesta.</p>
+
+<div class="cards">
+<div class="card">
+<span class="tag">ANÁLISIS ESTÁTICO</span>
+<h3>Examinar sin ejecutar</h3>
+<p>Se estudia el archivo sin ponerlo en funcionamiento. Se pueden revisar hashes, metadatos, cadenas de texto, estructura del archivo y características que ayuden a identificarlo.</p>
+</div>
+
+<div class="card">
+<span class="tag">ANÁLISIS DINÁMICO</span>
+<h3>Observar su comportamiento</h3>
+<p>El archivo se ejecuta de forma controlada, normalmente en un entorno aislado, para observar procesos, archivos modificados, conexiones de red y otras acciones.</p>
+</div>
+</div>
+
+<div class="flow">
+<div class="flow-item">Muestra sospechosa</div><div class="arrow">→</div>
+<div class="flow-item">Análisis estático</div><div class="arrow">→</div>
+<div class="flow-item">Análisis dinámico</div><div class="arrow">→</div>
+<div class="flow-item">Indicadores</div><div class="arrow">→</div>
+<div class="flow-item">Detección y respuesta</div>
+</div>
+
+<div class="note"><strong>Buenas prácticas:</strong> el análisis de muestras sospechosas debe realizarse con autorización y en entornos aislados. No se deben ejecutar archivos desconocidos en equipos productivos.</div>
+</section>
+
+<section class="section">
+<h2>3. Mapa conceptual integrador</h2>
+<p class="intro">El complemento solicitado se encuentra dentro del mismo documento. Presiona el botón para visualizarlo como un mapa conceptual interactivo.</p>
+<button class="map-button" onclick="openMap()">🗺️ Ver mapa conceptual: seguridad perimetral + hardening + SSL/TLS <span>＋</span></button>
+</section>
+
+<section class="section">
+<h2>4. Flujo general de una conexión TLS</h2>
+<p class="intro">TLS protege una comunicación mediante autenticación, negociación criptográfica y cifrado de la sesión.</p>
+<div class="flow">
+<div class="flow-item">Cliente</div><div class="arrow">→</div>
+<div class="flow-item">Servidor</div><div class="arrow">→</div>
+<div class="flow-item">Certificado digital</div><div class="arrow">→</div>
+<div class="flow-item">Validación de CA</div><div class="arrow">→</div>
+<div class="flow-item">Handshake</div><div class="arrow">→</div>
+<div class="flow-item">Canal cifrado</div>
+</div>
+<div class="accent"><strong>Idea clave:</strong> un certificado TLS ayuda a vincular la identidad de un sitio con una clave pública mediante una cadena de confianza respaldada por una Autoridad de Certificación.</div>
+</section>
+
+</main>
+
+<footer>
+Actividad de Aprendizaje · Criptografía, Malware y Hardening de Redes · Emmanuel Flores Que
+</footer>
+
+<div class="modal" id="mapModal" onclick="outsideClose(event)">
+<div class="modal-box">
+<div class="modal-head">
+<h2>Mapa conceptual integrador</h2>
+<button class="close" onclick="closeMap()">×</button>
+</div>
+
+<div class="map-content">
+<div class="map-root">ARQUITECTURA DE SEGURIDAD Y COMUNICACIÓN SEGURA</div>
+
+<div class="map-grid">
+
+<div class="map-column">
+<div class="map-title">1. SEGURIDAD PERIMETRAL<small>Control del tráfico y segmentación</small></div>
+<div class="brace"><div class="map-items">
+<div class="map-item"><strong>Firewall</strong><span>Filtra conexiones según reglas de seguridad.</span></div>
+<div class="map-item"><strong>DMZ</strong><span>Segmento aislado para servicios que deben ser accesibles desde redes externas.</span></div>
+<div class="map-item"><strong>Red interna</strong><span>Contiene recursos y sistemas que requieren mayor nivel de protección.</span></div>
+<div class="map-item"><strong>IDS / IPS</strong><span>Detectan o bloquean actividades de red sospechosas.</span></div>
+<div class="map-item"><strong>Segmentación</strong><span>Reduce el alcance de un incidente al separar recursos y funciones.</span></div>
+</div></div>
+</div>
+
+<div class="map-column">
+<div class="map-title">2. HARDENING<small>Reducción de la superficie de ataque</small></div>
+<div class="brace"><div class="map-items">
+<div class="map-item"><strong>Routers</strong><span>Cambiar credenciales predeterminadas, actualizar firmware y desactivar servicios innecesarios.</span></div>
+<div class="map-item"><strong>Firewall del router</strong><span>Aplicar reglas restrictivas y administrar el acceso de forma segura.</span></div>
+<div class="map-item"><strong>Navegadores</strong><span>Mantenerlos actualizados y controlar extensiones y permisos.</span></div>
+<div class="map-item"><strong>Configuración segura</strong><span>Minimizar funciones, privilegios y servicios que no sean necesarios.</span></div>
+<div class="map-item"><strong>Monitoreo</strong><span>Revisar registros y señales de actividad anómala.</span></div>
+</div></div>
+</div>
+
+<div class="map-column">
+<div class="map-title">3. SSL / TLS<small>Confianza y cifrado de comunicaciones</small></div>
+<div class="brace"><div class="map-items">
+<div class="map-item"><strong>Cliente solicita conexión</strong><span>Inicia la negociación con el servidor.</span></div>
+<div class="map-item"><strong>Servidor presenta certificado</strong><span>Incluye identidad del sitio y clave pública.</span></div>
+<div class="map-item"><strong>Autoridad de Certificación</strong><span>Forma parte de la cadena de confianza que permite validar el certificado.</span></div>
+<div class="map-item"><strong>Validación</strong><span>Se comprueba la cadena de confianza, vigencia y correspondencia del certificado con el sitio.</span></div>
+<div class="map-item"><strong>Handshake y sesión</strong><span>Se negocian parámetros y se establece una comunicación cifrada.</span></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<div class="note">
+<strong>Integración:</strong> la seguridad perimetral limita y controla el acceso a la red; el hardening reduce vulnerabilidades en dispositivos y software; y TLS protege las comunicaciones mediante autenticación y criptografía. Juntos forman capas complementarias de defensa.
+</div>
+</div>
+</div>
+</div>
+
+<script>
+function openMap(){
+ document.getElementById("mapModal").classList.add("active");
+ document.body.style.overflow="hidden";
+}
+function closeMap(){
+ document.getElementById("mapModal").classList.remove("active");
+ document.body.style.overflow="";
+}
+function outsideClose(e){
+ if(e.target.id==="mapModal") closeMap();
+}
+document.addEventListener("keydown",function(e){
+ if(e.key==="Escape") closeMap();
+});
+</script>
+</body>
+</html>
